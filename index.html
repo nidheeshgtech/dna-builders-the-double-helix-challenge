@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>DNA Builders – The Double Helix Challenge</title>
+  <meta name="description" content="A 3D classroom game where two students build a DNA ladder base by base and watch it twist into a double helix.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect x=%222%22 y=%224%22 width=%2213%22 height=%2210%22 rx=%223%22 fill=%22%23ff5a5f%22/%3E%3Crect x=%2217%22 y=%224%22 width=%2213%22 height=%2210%22 rx=%223%22 fill=%22%23ffc233%22/%3E%3Crect x=%222%22 y=%2218%22 width=%2213%22 height=%2210%22 rx=%223%22 fill=%22%233b82f6%22/%3E%3Crect x=%2217%22 y=%2218%22 width=%2213%22 height=%2210%22 rx=%223%22 fill=%22%231fbf9a%22/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <!-- floating labels that follow the 3D characters -->
+  <div id="tags" class="hidden">
+    <div class="name-tag boy" id="tag-boy"><span class="nt-name">Leo</span><span class="nt-pts">0</span></div>
+    <div class="name-tag girl" id="tag-girl"><span class="nt-name">Maya</span><span class="nt-pts">0</span></div>
+  </div>
+
+  <div id="bubble" class="bubble hidden" aria-live="polite">
+    <div class="bubble-who">Ms. Rivera</div>
+    <div class="bubble-text"></div>
+    <div class="bubble-actions">
+      <button class="btn-mini" id="bubble-skip" type="button">Skip intro</button>
+      <button class="btn-mini primary" id="bubble-next" type="button">Next</button>
+    </div>
+  </div>
+
+  <div id="pops"></div>
+
+  <!-- HUD -->
+  <header id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="logo-small">DNA <b>Builders</b></div>
+    </div>
+
+    <div class="hud-center">
+      <div class="turn-pill boy" id="pill-boy">
+        <span class="avatar"></span>
+        <span class="pill-text"><span class="pill-name">Leo</span><small>Left side</small></span>
+      </div>
+      <div class="score-box">
+        <small>Team score</small>
+        <strong id="score">0</strong>
+      </div>
+      <div class="turn-pill girl" id="pill-girl">
+        <span class="avatar"></span>
+        <span class="pill-text"><span class="pill-name">Maya</span><small>Right side</small></span>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <button class="icon-btn" id="btn-sound" type="button" title="Sound on/off" aria-label="Sound on/off">
+        <svg viewBox="0 0 24 24" class="on"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" class="off"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-voice" type="button" title="Teacher voice on/off" aria-label="Teacher voice on/off">
+        <svg viewBox="0 0 24 24" class="on"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" class="off"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-help" type="button" title="How to play" aria-label="How to play">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12" cy="17" r="1.2" fill="currentColor"/></svg>
+      </button>
+      <button class="btn restart" id="btn-restart" type="button">
+        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Restart
+      </button>
+    </div>
+  </header>
+
+  <!-- progress: one segment per rung -->
+  <div id="progress" class="hidden">
+    <div class="progress-track" id="progress-track"></div>
+    <b id="progress-count">0 / 8</b>
+  </div>
+
+  <!-- chalkboard-style rule card -->
+  <aside id="rules" class="hidden">
+    <h3>Pairing rules</h3>
+    <div class="rule"><span class="chip A">A</span><span class="link"></span><span class="chip T">T</span></div>
+    <div class="rule"><span class="chip G">G</span><span class="link"></span><span class="chip C">C</span></div>
+    <div class="rule rna"><span class="chip U">U</span><span class="note">RNA only,<br>not in DNA</span></div>
+  </aside>
+
+  <!-- bottom action bar -->
+  <footer id="actions" class="hidden">
+    <p id="instruction">Drag a block into the glowing space</p>
+    <div class="action-row">
+      <button class="btn hint" id="btn-hint" type="button">
+        <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>
+        Ask teacher
+      </button>
+      <button class="btn check" id="btn-check" type="button" disabled>
+        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Check answer
+      </button>
+    </div>
+  </footer>
+
+  <!-- title screen -->
+  <section id="title-screen" class="screen">
+    <div class="card title-card">
+      <div class="title-strand" aria-hidden="true">
+        <span class="A">A</span><span class="T">T</span><span class="G">G</span><span class="C">C</span>
+      </div>
+      <h1>DNA Builders</h1>
+      <p class="subtitle">The Double Helix Challenge</p>
+
+      <ol class="how">
+        <li><b>Take turns.</b> One builder fills the left side of the ladder, the other fills the right.</li>
+        <li><b>Match the partner.</b> Pick the block that pairs with the letter already on the rung.</li>
+        <li><b>Check it.</b> Press <em>Check answer</em>. Green glow means you got it!</li>
+      </ol>
+
+      <div class="players">
+        <label class="player boy">
+          <span>Left-side builder</span>
+          <input id="name-boy" maxlength="12" value="Leo" autocomplete="off">
+        </label>
+        <label class="player girl">
+          <span>Right-side builder</span>
+          <input id="name-girl" maxlength="12" value="Maya" autocomplete="off">
+        </label>
+      </div>
+
+      <button class="btn start" id="btn-start" type="button">Start Game</button>
+      <p class="loading" id="loading">Setting up the classroom…</p>
+    </div>
+  </section>
+
+  <!-- win screen -->
+  <section id="win-screen" class="screen hidden">
+    <div class="card win-card">
+      <div class="stars" id="stars"><i></i><i></i><i></i></div>
+      <h2>Double helix complete!</h2>
+      <p class="win-names" id="win-names"></p>
+      <div class="win-stats">
+        <div><small>Team score</small><strong id="win-score">0</strong></div>
+        <div><small>First-try matches</small><strong id="win-first">0/8</strong></div>
+      </div>
+      <p class="fact" id="win-fact"></p>
+      <div class="win-buttons">
+        <button class="btn ghost" id="btn-admire" type="button">Look around</button>
+        <button class="btn ghost" id="btn-facts" type="button">DNA facts</button>
+        <button class="btn start" id="btn-again" type="button">Play again</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- end-of-game summary, sits beside the spinning helix -->
+  <section id="recap" class="hidden" aria-live="polite">
+    <div class="recap-card">
+      <div class="recap-head">
+        <span class="recap-kicker">What we learned</span>
+        <span class="recap-step" id="recap-step">1 / 6</span>
+      </div>
+      <div class="recap-dots" id="recap-dots"></div>
+      <h2 id="recap-title"></h2>
+      <div class="recap-art" id="recap-art"></div>
+      <p class="recap-text" id="recap-text"></p>
+      <div class="recap-buttons">
+        <button class="btn-mini" id="recap-skip" type="button">Skip</button>
+        <span class="spacer"></span>
+        <button class="btn ghost small" id="recap-back" type="button">Back</button>
+        <button class="btn start small" id="recap-next" type="button">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- help / confirm modals -->
+  <section id="help-screen" class="screen hidden">
+    <div class="card help-card">
+      <h2>How to play</h2>
+      <ul class="how plain">
+        <li><b>Drag</b> a block from the tray onto the glowing space, or just <b>click</b> a block to send it there.</li>
+        <li>The glowing space is on <b>your side</b> of the ladder: left for the first builder, right for the second.</li>
+        <li>Press <b>Check answer</b>. Right pair: green glow and points. Wrong pair: Ms. Rivera gives you a hint and you try again.</li>
+        <li><b>A</b> pairs with <b>T</b>. <b>G</b> pairs with <b>C</b>. <b>U</b> is only found in RNA, so it never goes in DNA.</li>
+        <li>First try = 10 points, second try = 6, after that = 3. Asking the teacher for help = 3.</li>
+        <li>Keyboard: press <kbd>A</kbd> <kbd>T</kbd> <kbd>G</kbd> <kbd>C</kbd> <kbd>U</kbd> to place a block and <kbd>Enter</kbd> to check.</li>
+        <li>Drag the empty classroom to look around. Scroll or pinch to zoom.</li>
+      </ul>
+      <button class="btn start" id="btn-help-close" type="button">Got it</button>
+    </div>
+  </section>
+
+  <section id="confirm-screen" class="screen hidden">
+    <div class="card confirm-card">
+      <h2>Start over?</h2>
+      <p>The ladder will be cleared and the score goes back to zero.</p>
+      <div class="win-buttons">
+        <button class="btn ghost" id="btn-confirm-no" type="button">Keep playing</button>
+        <button class="btn restart big" id="btn-confirm-yes" type="button">Restart</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
